@@ -23,14 +23,19 @@ namespace GadgeteerTwitter
         private FrameTwitterFeliz windowF;
         private FrameTwitterTriste windowT;
         private int MINIMO_TWITEES = 3;
-        private static int contador = 0;
-        private static byte[] ipserver = new byte[4] {192, 168, 0, 10};
+        private int contador = 0;
+        private static byte[] ipserver = new byte[4] {192, 168, 65, 17};
+        //private static byte[] ipserver = new byte[4] { 200, 10, 150, 122 };
         private enum ESTADO { ACTIVO, APAGADO };
         private ESTADO estado = ESTADO.APAGADO;
+        HttpRequest request;
+        //GT.Timer timerRest;
         void ProgramStarted()
         {
             Debug.Print("Program Started");
             initialize_ethernet();
+            //this.timerRest = new GT.Timer(20000);
+            //this.timerRest.Tick += timerRest_Tick;
 
             this.windowD = new FrameTwitterDormido(this.multicolorLED);
             this.windowT = new FrameTwitterTriste(this.multicolorLED);
@@ -63,30 +68,19 @@ namespace GadgeteerTwitter
             //WebServer.DefaultEvent.WebEventReceived += DefaultEvent_WebEventReceived;
         }*/
 
-        public int ContadorTwit
+        /*private void twit_WebEventReceived(string path, WebServer.HttpMethod method, Responder responder)
         {
-            get
-            {
-                return contador;
-            }
-            set
-            {
-                contador = value;
-                this.windowD.ContadorTwit = value;
-            }
-        }
-        private void twit_WebEventReceived(string path, WebServer.HttpMethod method, Responder responder)
-        {
-            Debug.Print("Entro a twit_WebEventReceived" + contador);
+            Debug.Print("Entro a twit_WebEventReceived" + ContadorTwit);
             ContadorTwit += 1;
-            /*string content = "<html><body><h1>Hello World!!</h1></body></html>";
+            string content = "<html><body><h1>Hello World!!</h1></body></html>";
             byte[] bytes = new System.Text.UTF8Encoding().GetBytes(content);
-            responder.Respond(bytes, "text/html");*/
-        }
+            responder.Respond(bytes, "text/html");
+        }*/
 
         private void ethernetJ11D_NetworkDown(GTM.Module.NetworkModule sender, GTM.Module.NetworkModule.NetworkState state)
         {
             Debug.Print("No hay cable de red");
+            this.windowD.Show();
         }
 
         private void ethernetJ11D_NetworkUp(GTM.Module.NetworkModule sender, GTM.Module.NetworkModule.NetworkState state)
@@ -96,14 +90,26 @@ namespace GadgeteerTwitter
             /*WebServer.StartLocalServer(ethernetJ11D.NetworkSettings.IPAddress, 80);
             this.RunWebServer();
             Thread.Sleep(1);*/
-            SocketServer server = new SocketServer(ipserver, 8080);
+            //timerRest.Start();
+            SocketServer server = new SocketServer(ipserver, 80);
             server.DataReceived += new DataReceivedEventHandler(server_DataReceived);
             server.Start();
         }
 
         private void server_DataReceived(object sender, DataReceivedEventArgs e)
         {
-            ContadorTwit += 1;
+            this.ConteoTwitAWindow();
+            /*string content = "<html><body><h1>Hello World!!</h1></body></html>";
+            byte[] bytes = new System.Text.UTF8Encoding().GetBytes(content);
+            responder.Respond(bytes, "text/html");*/
+        }
+
+        private void ConteoTwitAWindow()
+        {
+            contador = contador + 1;
+            this.windowF.ContadorTwit = contador;
+            this.windowT.ContadorTwit = contador;
+            this.windowD.ContadorTwit = contador;
             if (ESTADO.ACTIVO.Equals(estado))
             {
                 if (contador > MINIMO_TWITEES)
@@ -130,7 +136,9 @@ namespace GadgeteerTwitter
             //Debug.Print("IP STATIC 192.168.65.17 ");
             //ethernetJ11D.UseStaticIP("192.168.65.17", "255.255.255.0", "192.168.65.254");
             String ip = "" + ipserver[0] + "." + ipserver[1] + "." + ipserver[2] + "." + ipserver[3];
-            ethernetJ11D.UseStaticIP(ip, "255.255.255.0", "192.168.0.1");
+            //ethernetJ11D.UseStaticIP(ip, "255.255.255.0", "192.168.0.1");
+            ethernetJ11D.UseStaticIP(ip, "255.255.255.0", "192.168.65.254");
+            
             //ethernetJ11D.UseDHCP();
         }
 
@@ -155,8 +163,31 @@ namespace GadgeteerTwitter
         void windowD_BtnTapReset(object sender)
         {
             this.estado = ESTADO.APAGADO;
-            ContadorTwit = 0;
+            contador = 0;
+            this.windowF.ContadorTwit = contador;
+            this.windowT.ContadorTwit = contador;
+            this.windowD.ContadorTwit = contador;
             this.windowD.Show();
         }
+
+        /*void timerRest_Tick(GT.Timer timer)
+        {
+
+            Debug.Print("ENTRO");
+            //request = HttpHelper.CreateHttpGetRequest("http://184.106.153.149/channels/120875/field/1/last");
+            //request = HttpHelper.CreateHttpGetRequest("https://maker.ifttt.com/trigger/twit/with/key/2ek156-Q669rdtjJ2VpLt");
+            request = HttpHelper.CreateHttpGetRequest("http://ecuayuda.espol.edu.ec/twit");
+            request.ResponseReceived += request_ResponseReceived;
+            request.SendRequest(); 
+        }
+        */
+        /*void request_ResponseReceived(HttpRequest sender, HttpResponse response)
+        {
+            String txt = response.Text;
+            Debug.Print(" algun exto del server" + txt);
+            this.ConteoTwitAWindow();
+        }*/
     }
+
+
 }

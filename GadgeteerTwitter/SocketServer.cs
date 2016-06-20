@@ -10,7 +10,7 @@ namespace GadgeteerTwitter
 
     public class SocketServer
     {
-        public const int DEFAULT_SERVER_PORT = 8080;
+        public const int DEFAULT_SERVER_PORT = 80;
         private Socket socket;
         private int port;
         private IPAddress ip;

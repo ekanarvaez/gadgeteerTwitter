@@ -1,6 +1,7 @@
 using System;
 using Microsoft.SPOT;
 using GHI.Glide;
+using GHI.Glide.UI;
 
 namespace GadgeteerTwitter
 {
@@ -8,11 +9,20 @@ namespace GadgeteerTwitter
     {
         protected GHI.Glide.Display.Window window;
         protected Gadgeteer.Modules.GHIElectronics.MulticolorLED multicolorLed;
+        protected TextBlock txtCantidad;
         
         public FrameGHI(Gadgeteer.Modules.GHIElectronics.MulticolorLED multicolor, Resources.StringResources resource)
         {
             this.window = GlideLoader.LoadWindow(Resources.GetString(resource));
+            this.txtCantidad = (TextBlock)window.GetChildByName("txtCantidad");
             this.multicolorLed = multicolor;
+            this.ContadorTwit = 0;
+        }
+
+        public int ContadorTwit 
+        {
+            get;
+            set;
         }
 
         protected virtual void Parpadeo()
@@ -23,6 +33,7 @@ namespace GadgeteerTwitter
         public void Show()
         {
             Parpadeo();
+            this.txtCantidad.Text = "Usted tiene " + ContadorTwit + " menciones en twits";
             Glide.MainWindow = window;
         }
     }
